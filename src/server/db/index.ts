@@ -1,8 +1,18 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-
 import { env } from "~/env";
-import * as schema from "./schema";
+
+// Import all schemas
+import { channels } from "./schema/channel";
+import { videos } from "./schema/video";
+import { changeEvents } from "./schema/changeEvent";
+
+// Export schemas
+export const schema = {
+  channels,
+  videos,
+  changeEvents,
+};
 
 /**
  * Cache the database connection in development. This avoids creating a new connection on every HMR

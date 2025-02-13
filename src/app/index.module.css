@@ -2,176 +2,124 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   min-height: 100vh;
-  background-image: linear-gradient(to bottom, #2e026d, #15162c);
+  padding: 4rem 1rem;
+  background: #f5f5f5;
 }
 
 .container {
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3rem;
-  padding: 4rem 1rem;
-}
-
-@media (min-width: 640px) {
-  .container {
-    max-width: 640px;
-  }
-}
-
-@media (min-width: 768px) {
-  .container {
-    max-width: 768px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .container {
-    max-width: 1024px;
-  }
-}
-
-@media (min-width: 1280px) {
-  .container {
-    max-width: 1280px;
-  }
-}
-
-@media (min-width: 1536px) {
-  .container {
-    max-width: 1536px;
-  }
+  max-width: 800px;
 }
 
 .title {
-  font-size: 3rem;
-  line-height: 1;
-  font-weight: 800;
-  letter-spacing: -0.025em;
-  margin: 0;
-  color: white;
-}
-
-@media (min-width: 640px) {
-  .title {
-    font-size: 5rem;
-  }
-}
-
-.pinkSpan {
-  color: hsl(280 100% 70%);
-}
-
-.cardRow {
-  display: grid;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-@media (min-width: 640px) {
-  .cardRow {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 768px) {
-  .cardRow {
-    gap: 2rem;
-  }
-}
-
-.card {
-  max-width: 20rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: 0.75rem;
-  color: white;
-  background-color: rgb(255 255 255 / 0.1);
-}
-
-.card:hover {
-  background-color: rgb(255 255 255 / 0.2);
-  transition: background-color 150ms cubic-bezier(0.5, 0, 0.2, 1);
-}
-
-.cardTitle {
-  font-size: 1.5rem;
-  line-height: 2rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-.cardText {
-  font-size: 1.125rem;
-  line-height: 1.75rem;
-}
-
-.showcaseContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.showcaseText {
-  color: white;
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
   text-align: center;
-  font-size: 1.5rem;
-  line-height: 2rem;
-}
-
-.authContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-}
-
-.loginButton {
-  border-radius: 9999px;
-  background-color: rgb(255 255 255 / 0.1);
-  padding: 0.75rem 2.5rem;
-  font-weight: 600;
-  color: white;
-  text-decoration-line: none;
-  transition: background-color 150ms cubic-bezier(0.5, 0, 0.2, 1);
-}
-
-.loginButton:hover {
-  background-color: rgb(255 255 255 / 0.2);
+  color: #333;
 }
 
 .form {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
+  width: 100%;
+  max-width: 500px;
+  margin: 2rem auto;
+}
+
+.formGroup {
+  margin-bottom: 1rem;
 }
 
 .input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #0070f3;
+}
+
+.button {
   width: 100%;
-  border-radius: 9999px;
-  padding: 0.5rem 1rem;
-  color: black;
+  padding: 0.75rem;
+  background: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.button:hover {
+  background: #0051a2;
+}
+
+.button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.channelList {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.channelList h2 {
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.channelItem {
+  padding: 1rem;
+  margin: 0.5rem 0;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.channelItem:last-child {
+  margin-bottom: 0;
+}
+
+.channelItem h3 {
+  margin: 0 0 0.5rem 0;
+  color: #0070f3;
+}
+
+.channelItem p {
+  margin: 0.25rem 0;
+  color: #666;
 }
 
 .submitButton {
-  all: unset;
-  border-radius: 9999px;
-  background-color: rgb(255 255 255 / 0.1);
-  padding: 0.75rem 2.5rem;
-  font-weight: 600;
+  padding: 0.5rem 1rem;
+  background-color: #0070f3;
   color: white;
-  text-align: center;
-  transition: background-color 150ms cubic-bezier(0.5, 0, 0.2, 1);
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 1rem;
 }
 
-.submitButton:hover {
-  background-color: rgb(255 255 255 / 0.2);
+.submitButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
