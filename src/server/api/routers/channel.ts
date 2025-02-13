@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
-import { channels } from "~/server/db/schema/channel";
+import { channels } from "~/server/db/schema";
 import { PubSubSubscriber } from "~/server/services/pubsubhubbub/subscriber";
-import { scheduleSubscriptionRenewal } from "~/server/services/scheduler/worker";
 import { eq } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
 
 export const channelRouter = createTRPCRouter({
   create: publicProcedure
@@ -12,22 +12,43 @@ export const channelRouter = createTRPCRouter({
       channelId: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
-      // Subscribe to PubSubHubbub
-      const leaseSeconds = await PubSubSubscriber.subscribe(input.channelId);
-      const expiresAt = new Date(Date.now() + leaseSeconds * 1000);
+      try {
+        // First create the channel in our database
+        const [channel] = await ctx.db.insert(channels)
+          .values({
+            name: input.name,
+            channelId: input.channelId,
+            subscriptionVerified: false,
+          })
+          .returning();
 
-      // Create channel in database
-      const [channel] = await ctx.db.insert(channels).values({
-        name: input.name,
-        channelId: input.channelId,
-        leaseSeconds,
-        subscriptionExpiresAt: expiresAt,
-      }).returning();
+        if (!channel) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to create channel',
+          });
+        }
 
-      // Schedule renewal
-      await scheduleSubscriptionRenewal(input.channelId, expiresAt);
+        // Then attempt to subscribe to PubSubHubbub
+        try {
+          await PubSubSubscriber.subscribe(input.channelId);
+          console.log(`Subscription requested for channel: ${input.channelId}`);
+        } catch (error) {
+          console.error('Failed to subscribe to PubSubHubbub:', error);
+          // We don't throw here because the channel was created successfully
+          // The subscription can be retried later
+        }
 
-      return channel;
+        return channel;
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('unique constraint')) {
+          throw new TRPCError({
+            code: 'CONFLICT',
+            message: 'Channel already exists',
+          });
+        }
+        throw error;
+      }
     }),
 
   getAll: publicProcedure.query(({ ctx }) => {

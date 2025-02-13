@@ -1,16 +1,14 @@
-import { startWorkers } from "./server/services/scheduler/worker";
+import { getRunner } from "./server/services/scheduler/graphile";
 
 export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
-    console.log('🔄 Initializing background job workers...');
+    console.log('🔄 Initializing background jobs...');
     
     try {
-      await startWorkers();
-      console.log('✅ Background job workers initialized successfully');
+      await getRunner();
+      console.log('✅ Background jobs initialized successfully');
     } catch (error) {
-      console.error('❌ Failed to initialize background job workers:', error);
-      // Optionally re-throw if you want the server to fail on worker init error
-      // throw error;
+      console.error('❌ Failed to initialize background jobs:', error);
     }
   }
 } 

@@ -1,10 +1,9 @@
 import { type NextRequest } from "next/server";
 import { db } from "~/server/db";
-import { videos } from "~/server/db/schema/video";
-import { changeEvents } from "~/server/db/schema/changeEvent";
-import { channels } from "~/server/db/schema/channel";
+import { videos, changeEvents, channels } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 import { XMLParser } from "fast-xml-parser";
+import { scheduleJob } from "~/server/services/scheduler/graphile";
 
 const parser = new XMLParser();
 
@@ -13,17 +12,47 @@ export async function GET(request: NextRequest) {
   const mode = searchParams.get("hub.mode");
   const topic = searchParams.get("hub.topic");
   const challenge = searchParams.get("hub.challenge");
+  const leaseSeconds = searchParams.get("hub.lease_seconds");
   
   if (mode === "subscribe" && topic && challenge) {
     const channelId = extractChannelId(topic);
-    if (channelId) {
-      // Verify subscription in database
+    console.log("Verifying subscription for channel:", channelId);
+    
+    if (channelId && leaseSeconds) {
+      // Calculate actual expiration time based on lease seconds
+      const expiresAt = new Date(
+        Date.now() + parseInt(leaseSeconds) * 1000
+      );
+      
+      // Update channel with verification and lease information
       await db
         .update(channels)
-        .set({ subscriptionVerified: true })
+        .set({ 
+          subscriptionVerified: true,
+          leaseSeconds: parseInt(leaseSeconds),
+          subscriptionExpiresAt: expiresAt,
+        })
         .where(eq(channels.channelId, channelId));
+
+      // Schedule renewal 5 minutes before expiration
+      const renewalTime = new Date(expiresAt.getTime() - 5 * 60 * 1000);
+      
+      await scheduleJob(
+        'subscription-renewal',
+        { channelId },
+        renewalTime
+      );
+      
+      console.log(`Subscription verified for channel ${channelId}:`);
+      console.log(`- Lease seconds: ${leaseSeconds}`);
+      console.log(`- Expires at: ${expiresAt.toISOString()}`);
+      console.log(`- Renewal scheduled for: ${renewalTime.toISOString()}`);
     }
-    return new Response(challenge);
+    
+    // Return challenge for verification
+    return new Response(challenge, {
+      headers: { "Content-Type": "text/plain" },
+    });
   }
   
   return new Response("Invalid request", { status: 400 });
@@ -70,6 +99,13 @@ function extractVideoId(url: string): string | null {
 }
 
 function extractChannelId(url: string): string | null {
+  // Handle feed URL format
+  if (url.includes('youtube.com/xml/feeds/videos.xml')) {
+    const params = new URL(url).searchParams;
+    return params.get('channel_id');
+  }
+  
+  // Handle other formats (like the one in POST notifications)
   const match = /channel:([^:]+)/.exec(url);
   return match?.[1] ?? null;
 }
