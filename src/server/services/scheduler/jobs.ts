@@ -3,6 +3,7 @@ import { channels } from "~/server/db/schema/channel";
 import { PubSubSubscriber } from "../pubsubhubbub/subscriber";
 import { scheduleSubscriptionRenewal } from "./worker";
 import { eq } from "drizzle-orm";
+import type { SubscriptionRenewalJob } from "./worker";
 
 export async function handleSubscriptionRenewal(jobData: SubscriptionRenewalJob) {
   const { channelId } = jobData;

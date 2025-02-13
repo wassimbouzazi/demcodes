@@ -48,13 +48,15 @@ export async function startWorkers() {
   // Subscribe to subscription renewal jobs
   await boss.work<SubscriptionRenewalJob>(
     'subscription-renewal',
-    async (job) => {
+    async (jobs) => {
       try {
-        await handleSubscriptionRenewal(job.data);
-        return true; // Job completed successfully
+        for (const job of jobs) {
+          await handleSubscriptionRenewal(job.data);
+        }
+        return true;
       } catch (error) {
         console.error('Failed to process subscription renewal:', error);
-        throw error; // This will trigger a retry based on the job configuration
+        throw error;
       }
     }
   );
