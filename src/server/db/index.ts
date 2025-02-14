@@ -6,12 +6,15 @@ import { env } from "~/env";
 import { channels } from "./schema/channel";
 import { videos } from "./schema/video";
 import { changeEvents } from "./schema/changeEvent";
-
+import { codes } from "./schema/code";
+import { codeOccurrences } from "./schema/code-occurrence";
 // Export schemas
 export const schema = {
   channels,
   videos,
   changeEvents,
+  codes,
+  codeOccurrences,
 };
 
 /**

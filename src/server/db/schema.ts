@@ -12,3 +12,5 @@ export const createTable = pgTableCreator((name) => `demcodes_${name}`);
 export * from "./schema/channel";
 export * from "./schema/video";
 export * from "./schema/changeEvent";
+export * from "./schema/code";
+export * from "./schema/code-occurrence";
