@@ -1,8 +1,11 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
-import { channels } from "~/server/db/schema";
+import { channels } from "~/server/db/schema/channel";
+import { videos } from "~/server/db/schema/video";
+import { changeEvents } from "~/server/db/schema/changeEvent";
+import { codeOccurrences } from "~/server/db/schema/code-occurrence";
+import { eq, sql } from "drizzle-orm";
 import { PubSubSubscriber } from "~/server/services/pubsubhubbub/subscriber";
-import { eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const channelRouter = createTRPCRouter({
@@ -10,6 +13,7 @@ export const channelRouter = createTRPCRouter({
     .input(z.object({
       name: z.string(),
       channelId: z.string(),
+      tag: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
       try {
@@ -18,6 +22,7 @@ export const channelRouter = createTRPCRouter({
           .values({
             name: input.name,
             channelId: input.channelId,
+            tag: input.tag,
             subscriptionVerified: false,
           })
           .returning();
@@ -51,8 +56,24 @@ export const channelRouter = createTRPCRouter({
       }
     }),
 
-  getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.db.select().from(channels);
+  getAll: publicProcedure.query(async ({ ctx }) => {
+    return ctx.db
+      .select({
+        id: channels.id,
+        name: channels.name,
+        channelId: channels.channelId,
+        tag: channels.tag,
+        subscriptionVerified: channels.subscriptionVerified,
+        videoCount: sql<number>`COUNT(DISTINCT ${videos.id})`,
+        eventCount: sql<number>`COUNT(DISTINCT ${changeEvents.id})`,
+        codeCount: sql<number>`COUNT(DISTINCT ${codeOccurrences.id})`
+      })
+      .from(channels)
+      .leftJoin(videos, eq(videos.channelId, channels.channelId))
+      .leftJoin(changeEvents, eq(changeEvents.channelId, channels.channelId))
+      .leftJoin(codeOccurrences, eq(codeOccurrences.videoId, videos.videoId))
+      .groupBy(channels.id)
+      .orderBy(channels.id);
   }),
 
   verifySubscription: publicProcedure

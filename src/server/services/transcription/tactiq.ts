@@ -1,6 +1,27 @@
 import { env } from "~/env";
 
-export async function getVideoTranscript(videoId: string): Promise<string> {
+interface TranscriptResponse {
+  code: number;
+  message: string;
+  data: {
+    videoId: string;
+    videoInfo: {
+      name: string;
+      thumbnailUrl: unknown;
+      embedUrl: string;
+      duration: string;
+      description: string;
+      upload_date: string;
+      genre: string;
+      author: string;
+      channel_id: string | null;
+    };
+    language_code: Array<unknown>;
+    transcripts: Record<string, unknown>;
+  };
+}
+
+export async function getVideoTranscript(videoId: string): Promise<string | null> {
   try {
     const response = await fetch(`https://notegpt.io/api/v2/video-transcript?platform=youtube&video_id=${videoId}`, {
       method: 'GET',
@@ -16,14 +37,33 @@ export async function getVideoTranscript(videoId: string): Promise<string> {
       throw new Error(`Failed to get transcript: ${response.status} ${response.statusText}`);
     }
 
-    interface TranscriptResponse {
-      transcript: string;
+    const data = (await response.json()) as TranscriptResponse;
+    console.log("A. Transcript", data);
+    
+    // Check if we have transcripts and they're not empty
+    if (!data.data?.transcripts || Object.keys(data.data.transcripts).length === 0) {
+      console.log(`No transcripts found for video ${videoId}`);
+      return null;
     }
 
-    const data = (await response.json()) as TranscriptResponse;
-    return data.transcript || '';
+    // Get the first available transcript
+    const firstTranscriptKey = Object.keys(data.data.transcripts)[0];
+    if (!firstTranscriptKey) return null;
+    
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const transcript = data.data.transcripts[firstTranscriptKey];
+
+    // Make sure we have a valid transcript object
+    if (!transcript || typeof transcript !== 'object') {
+      console.log(`Invalid transcript format for video ${videoId}`);
+      return null;
+    }
+
+    // Convert transcript object to string
+    console.log("B. Transcript", JSON.stringify(transcript));
+    return JSON.stringify(transcript);
   } catch (error) {
     console.error(`Failed to get transcript for video ${videoId}:`, error);
-    throw error;
+    return null;
   }
 } 

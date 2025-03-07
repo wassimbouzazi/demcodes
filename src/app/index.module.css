@@ -85,14 +85,16 @@
 }
 
 .channelItem {
-  padding: 1rem;
-  margin: 0.5rem 0;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s;
+}
+
+.channelItem:hover {
+  background-color: #f8f9fa;
 }
 
 .channelItem:last-child {
@@ -109,6 +111,71 @@
   color: #666;
 }
 
+.channelInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.channelInfo strong {
+  font-size: 1.1em;
+  color: #333;
+}
+
+.tag {
+  background: #e9ecef;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  color: #495057;
+  font-weight: 500;
+}
+
+.channelStats {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: #f8f9fa;
+}
+
+.statLabel {
+  font-size: 0.75em;
+  color: #6c757d;
+  text-transform: uppercase;
+}
+
+.statValue {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #495057;
+}
+
+.status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+.statusVerified {
+  background: #d4edda;
+  color: #155724;
+}
+
+.statusPending {
+  background: #fff3cd;
+  color: #856404;
+}
+
 .submitButton {
   padding: 0.5rem 1rem;
   background-color: #0070f3;
@@ -122,4 +189,42 @@
 .submitButton:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+.listHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.sortButtons {
+  display: flex;
+  gap: 10px;
+}
+
+.sortButton {
+  padding: 6px 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  background: white;
+  color: #495057;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sortButton:hover {
+  background: #f8f9fa;
+}
+
+.sortButton.active {
+  background: #e9ecef;
+  border-color: #ced4da;
+  font-weight: 500;
+}
+
+.stat.highlighted {
+  background: #e9ecef;
+  border: 1px solid #dee2e6;
 }

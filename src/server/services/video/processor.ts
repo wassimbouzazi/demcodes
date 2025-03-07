@@ -18,11 +18,18 @@ export async function processVideo(videoId: string): Promise<ProcessedCode[]> {
 
     // Get video transcript
     const transcript = await getVideoTranscript(videoId);
-    console.log(`Got transcript for video ${videoId}, length: ${transcript.length} chars`);
+    console.log(`Got transcript for video ${videoId}, length: ${transcript?.length ?? 0} chars`);
 
-    // Extract codes using AI
-    const extractedCodes = await extractCodesFromTranscript(transcript);
-    console.log(`Extracted ${extractedCodes.length} codes from video ${videoId}`);
+    // Initialize extractedCodes
+    let extractedCodes: ProcessedCode[] = [];
+
+    // Only process transcript if we have one
+    if (transcript) {
+      extractedCodes = await extractCodesFromTranscript(transcript);
+      console.log(`Extracted ${extractedCodes.length} codes from video ${videoId}`);
+    } else {
+      console.log(`No transcript available for video ${videoId}, skipping code extraction`);
+    }
 
     // Process each extracted code
     for (const extractedCode of extractedCodes) {
@@ -77,7 +84,7 @@ export async function processVideo(videoId: string): Promise<ProcessedCode[]> {
       });
     }
 
-    // Mark video as processed
+    // Mark video as processed regardless of transcript availability
     await db
       .update(videos)
       .set({

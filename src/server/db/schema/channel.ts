@@ -21,6 +21,7 @@ export const channels = createTable(
     id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
     name: varchar("name", { length: 256 }).notNull(),
     channelId: varchar("channel_id", { length: 256 }).notNull().unique(),
+    tag: varchar("tag", { length: 256 }),
     subscriptionVerified: boolean("subscription_verified").default(false),
     leaseSeconds: integer("lease_seconds"),
     subscriptionExpiresAt: timestamp("subscription_expires_at", { withTimezone: true }),

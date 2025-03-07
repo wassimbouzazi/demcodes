@@ -17,15 +17,17 @@ Your task is to identify and extract:
 - Additional details about the offer
 
 Return the data in this exact JSON format:
-[{
-  "service": "string",
-  "coupon_code": "string",
-  "discount": "string",
-  "url": "string",
-  "details": "string"
-}]
+{
+  "codes": [{
+    "service": "string",
+    "coupon_code": "string",
+    "discount": "string",
+    "url": "string",
+    "details": "string"
+  }]
+}
 
-If no codes are found, return an empty array: []
+If no codes are found, return: {"codes": []}
 
 Rules:
 1. Only extract actual promotional codes and offers
@@ -34,8 +36,14 @@ Rules:
 4. Be concise but complete in the details field
 5. Return valid JSON that matches the specified format exactly`;
 
+// Add interface at the top with other imports
+interface OpenAIResponse {
+  codes: ProcessedCode[];
+}
+
 export async function extractCodesFromTranscript(transcript: string): Promise<ProcessedCode[]> {
   try {
+    console.log("Transcript", JSON.stringify(transcript));
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const completion = await openai.chat.completions.create({
       model: "gpt-4-turbo-preview",
@@ -50,17 +58,20 @@ export async function extractCodesFromTranscript(transcript: string): Promise<Pr
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     const response = completion.choices[0]?.message?.content;
     if (!response) {
-      console.log('No codes found in transcript');
+      console.log('No response from OpenAI');
       return [];
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
-      const parsed = JSON.parse(response);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
-      return parsed.codes || [];
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      const parsed = JSON.parse(response as string) as OpenAIResponse;
+      if (!Array.isArray(parsed.codes)) {
+        console.log('Invalid response format:', response);
+        return [];
+      }
+      return parsed.codes;
     } catch (error) {
-      console.error('Failed to parse OpenAI response:', error);
+      console.error('Failed to parse OpenAI response:', response);
       return [];
     }
   } catch (error) {
